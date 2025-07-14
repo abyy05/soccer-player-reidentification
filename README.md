@@ -39,7 +39,7 @@ pip install opencv-python numpy ultralytics
 ### ▶️ Run
 
 ```bash
-python player_tracking.py
+python final_tracking_up.py
 ```
 
 ### ⚙️ Tracking Logic
