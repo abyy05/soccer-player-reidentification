@@ -6,7 +6,7 @@ Here’s a concise, professional `README.md` file for your grid-based player tra
 
 # Grid-Based Player Tracking with YOLOv8
 
-This project implements a **player tracking system** using [YOLOv8](https://github.com/ultralytics/ultralytics) and a **grid-based matching algorithm** to assign persistent IDs to players across video frames.
+This project implements a **player tracking system** using [YOLO](https://github.com/ultralytics/ultralytics) and a **grid-based matching algorithm** to assign persistent IDs to players across video frames.
 
 ### 🔧 Features
 
@@ -19,7 +19,7 @@ This project implements a **player tracking system** using [YOLOv8](https://gith
 
 * **Input:**
   `input/15sec_input_720p.mp4` — input video
-  `input/best.pt` — custom YOLOv8 model
+  `input/best.pt` — custom YOLO model
 * **Output:**
   `output/output_tracked_video.mp4` — annotated video with tracking
 
@@ -53,6 +53,6 @@ python player_tracking.py
 * Press `Esc` to exit while running
 * Model must support custom classes: Player (2), Goalkeeper (1), Referee (3), Ball (0)
 
----
 
-Let me know if you'd like a downloadable file or want to include visuals or performance metrics.
+
+
