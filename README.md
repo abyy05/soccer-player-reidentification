@@ -50,6 +50,8 @@ python final_tracking_up.py
 
 * Press `Esc` to exit while running
 * Model must support custom classes: Player (2), Goalkeeper (1), Referee (3), Ball (0)
+
+## Output 
   
 ![Demo](output.gif)
 
