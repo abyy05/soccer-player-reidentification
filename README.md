@@ -2,7 +2,7 @@
 
 
 
-# Grid-Based Player Tracking with YOLOv8
+# Grid-Based Player Tracking with YOLO
 
 This project implements a **player tracking system** using [YOLO](https://github.com/ultralytics/ultralytics) and a **grid-based matching algorithm** to assign persistent IDs to players across video frames.
 
