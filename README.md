@@ -1,8 +1,6 @@
 # soccer-player-reidentification
 
-Here’s a concise, professional `README.md` file for your grid-based player tracking project:
 
----
 
 # Grid-Based Player Tracking with YOLOv8
 
