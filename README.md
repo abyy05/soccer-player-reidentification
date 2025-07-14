@@ -28,7 +28,7 @@ This project implements a **player tracking system** using [YOLO](https://github
 * Python 3.8+
 * OpenCV
 * NumPy
-* Ultralytics YOLOv8
+* Ultralytics YOLO
 
 Install dependencies:
 
