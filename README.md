@@ -161,7 +161,7 @@ Unmatched detections that heavily overlap a confirmed track (or lie within 0.8×
 
 ## 🐛 Known Limitations
 
-* The model file (`.pth`) is not included — you need to supply your own YOLOv8-compatible checkpoint trained on football players
+* The model file (`.pth`) is not included — you need to supply your own YOLOv8-compatible checkpoint trained on football players. Model training code is provided.
 * Tracking is single-camera only
 * Performance tested on 720p @ 30fps; 1080p will be slower without a GPU
 
