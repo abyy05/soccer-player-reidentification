@@ -7,7 +7,7 @@
 !\[OpenCV](https://img.shields.io/badge/OpenCV-4.x-green?logo=opencv)
 !\[License](https://img.shields.io/badge/License-MIT-yellow)
 
-\---
+
 
 ## 📽️ Demo
 
@@ -17,7 +17,7 @@
 
 > Blue Player #1, #2 … and Red Player #1, #2 … are assigned once and held through the full clip — even through crowd clusters and partial edge crops.
 
-\---
+
 
 ## ✨ Features
 
@@ -28,7 +28,7 @@
 * **End-of-video stability** — fixed centroid scale (no median collapse on sparse detections) and class-locked re-ID stop ID switching in the final frames
 * **Pure PyTorch NMS** — no external ONNX runtime or TorchVision dependency
 
-\---
+
 
 ## 🏗️ Architecture
 
@@ -53,7 +53,7 @@ StableTracker
 Annotated Output Video
 ```
 
-\---
+
 
 ## 🔧 Installation
 
@@ -80,57 +80,58 @@ numpy>=1.24.0
 scipy>=1.10.0
 ```
 
-> \\\*\\\*GPU (recommended):\\\*\\\* install the CUDA build of PyTorch from https://pytorch.org/get-started/locally/
+> GPU (recommended): install the CUDA build of PyTorch from https://pytorch.org/get-started/locally/
 
-\---
+
 
 ## 🚀 Quick Start
 
-1. Place your `.pth` model file and input video anywhere on disk.
-2. Edit the paths at the top of `inference\\\_video\\\_stable.py`:
+1. Place your `.pth` model file in the same level as .py files and your input video file in `input` folder.
+2. Edit the file names at the top of `football_match.py`:
 
 ```python
-PTH\\\_PATH    = r"path/to/your/sports\\\_model.pth"
-INPUT\\\_VIDEO = r"path/to/your/input\\\_video.mp4"
-OUTPUT\\\_VIDEO = "output/output\\\_tracked.mp4"
+PTH_PATH      = os.path.join(BASE_DIR, "your .pth file")
+INPUT_VIDEO   = os.path.join(BASE_DIR, "input", "your input video file")
+OUTPUT_VIDEO  = os.path.join(BASE_DIR, "output", "your output video file")
 ```
 
 3. Run:
 
 ```bash
-python inference\\\_video\\\_stable.py
+python football_match.py
 ```
 
-The annotated video is written to `OUTPUT\\\_VIDEO`. Press **ESC** in the preview window to stop early.
+The annotated video is written to `output_video`. Press **ESC** in the preview window to stop early.
 
-\---
+
 
 ## ⚙️ Configuration Reference
 
 |Parameter|Default|Description|
 |-|-|-|
-|`CONF\\\_THRESHOLD`|`0.35`|Minimum detection confidence|
-|`HIGH\\\_CONF`|`0.45`|Threshold separating strict vs loose match pass|
-|`IOU\\\_STRICT`|`0.40`|IoU threshold for high-conf detections|
-|`IOU\\\_LOOSE`|`0.25`|IoU threshold for low-conf detections|
-|`IOU\\\_REID`|`0.25`|Re-ID threshold (centre of frame)|
-|`IOU\\\_REID\\\_EDGE`|`0.10`|Re-ID threshold near frame border|
-|`MAX\\\_AGE`|`8`|Frames before active track moves to lost|
-|`RE\\\_ID\\\_AGE`|`90`|Frames a lost track is remembered for re-ID|
-|`MIN\\\_HITS`|`3`|Detections required before a box is rendered|
-|`VISIBILITY\\\_LIMIT`|`1`|Hide box if not seen in this many frames|
-|`CENTROID\\\_WEIGHT`|`0.55`|Blend weight for centroid proximity in matching|
-|`CENTROID\\\_FIXED\\\_SCALE`|`160.0`|Normalisation scale (px) for centroid score|
-|`EDGE\\\_MARGIN`|`60`|Pixels from border that defines "edge zone"|
-|`VELOCITY\\\_DECAY`|`0.90`|Per-frame decay applied to Kalman velocity|
+|`CONF_THRESHOLD`|`0.35`|Minimum detection confidence|
+|`HIGH_CONF`|`0.45`|Threshold separating strict vs loose match pass|
+|`IOU_STRICT`|`0.40`|IoU threshold for high-conf detections|
+|`IOU_LOOSE`|`0.25`|IoU threshold for low-conf detections|
+|`IOU_REID`|`0.25`|Re-ID threshold (centre of frame)|
+|`IOU_REID_EDGE`|`0.10`|Re-ID threshold near frame border|
+|`MAX_AGE`|`8`|Frames before active track moves to lost|
+|`RE_ID_AGE`|`90`|Frames a lost track is remembered for re-ID|
+|`MIN_HITS`|`3`|Detections required before a box is rendered|
+|`VISIBILITY_LIMIT`|`1`|Hide box if not seen in this many frames|
+|`CENTROID_WEIGHT`|`0.55`|Blend weight for centroid proximity in matching|
+|`CENTROID_FIXED_SCALE`|`160.0`|Normalisation scale (px) for centroid score|
+|`EDGE_MARGIN`|`60`|Pixels from border that defines "edge zone"|
+|`VELOCITY_DECAY`|`0.90`|Per-frame decay applied to Kalman velocity|
 
-\---
+
 
 ## 📁 Project Structure
 
 ```
 
-inference\\\_video\\\_stable.py   # Main tracking script
+football_match.py   # Main tracking script
+football_training.py # Model Training Script
 requirements.txt
 README.md
 input/
@@ -139,13 +140,13 @@ output/
   └── (tracked videos are written here)
 ```
 
-\---
+
 
 ## 🧠 How It Works
 
 ### Kalman Filter
 
-Each player track maintains a 7-dimensional state vector `\\\[cx, cy, area, aspect\\\_ratio, vx, vy, v\\\_area]`. The filter predicts the next position every frame and corrects it when a detection is matched. Velocity decays each frame (`VELOCITY\\\_DECAY = 0.82`) so coasting tracks don't drift far when detections are briefly lost.
+Each player track maintains a 7-dimensional state vector `[cx, cy, area, aspect_ratio, vx, vy, v_area]`. The filter predicts the next position every frame and corrects it when a detection is matched. Velocity decays each frame (`VELOCITY_DECAY = 0.82`) so coasting tracks don't drift far when detections are briefly lost.
 
 ### Two-Pass Hungarian Matching
 
@@ -159,7 +160,7 @@ When a player briefly exits frame or becomes fully occluded, their track moves t
 
 Unmatched detections that heavily overlap a confirmed track (or lie within 0.8× its diagonal) are absorbed rather than spawning new IDs.
 
-\---
+
 
 ## 🐛 Known Limitations
 
@@ -167,13 +168,8 @@ Unmatched detections that heavily overlap a confirmed track (or lie within 0.8×
 * Tracking is single-camera only
 * Performance tested on 720p @ 30fps; 1080p will be slower without a GPU
 
-\---
 
-## 📄 License
 
-MIT — see [LICENSE](LICENSE) for details.
-
-\---
 
 ## 🙏 Acknowledgements
 
