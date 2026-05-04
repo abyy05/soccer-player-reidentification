@@ -83,7 +83,7 @@ scipy>=1.10.0
 
 ## 🚀 Quick Start
 
-1. Place your `.pth` model file in the same level as .py files and your input video file in `input` folder.
+1. Place your `.pth` model file in the same level as ` .py ` files and your input video file in `input` folder.
 2. Edit the file names at the top of `football_match.py`:
 
 ```python
