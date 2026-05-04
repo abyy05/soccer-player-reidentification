@@ -89,7 +89,7 @@ scipy>=1.10.0
 ```python
 PTH_PATH      = os.path.join(BASE_DIR, "your .pth file")
 INPUT_VIDEO   = os.path.join(BASE_DIR, "input", "your input video file")
-OUTPUT_VIDEO  = os.path.join(BASE_DIR, "output", "your output video file")
+OUTPUT_VIDEO  = os.path.join(BASE_DIR, "output", "output file is created here")
 ```
 
 3. Run:
