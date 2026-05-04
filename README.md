@@ -2,10 +2,7 @@
 
 > Real-time multi-object tracking for football footage — stable player IDs across occlusion, crowd clusters, and frame edges using a custom Kalman filter tracker built on top of a YOLOv8-style PyTorch model.
 
-!\[Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)
-!\[PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c?logo=pytorch)
-!\[OpenCV](https://img.shields.io/badge/OpenCV-4.x-green?logo=opencv)
-!\[License](https://img.shields.io/badge/License-MIT-yellow)
+![Football Player Tracking Demo](output_clip.gif)
 
 
 
