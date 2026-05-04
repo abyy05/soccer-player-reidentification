@@ -1,4 +1,4 @@
-# 🏈 Football Player Tracking with Kalman Filter \& Re-ID
+# Football Player Tracking with Kalman Filter \& Re-ID
 
 > Real-time multi-object tracking for football footage — stable player IDs across occlusion, crowd clusters, and frame edges using a custom Kalman filter tracker built on top of a YOLOv8-style PyTorch model.
 
