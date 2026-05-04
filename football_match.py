@@ -1,23 +1,11 @@
-"""
-inference_video_stable.py — Football Tracking (Crowd + Edge Fix)
 
-Fixes in this version:
-- CROWD FIX: Blended IoU + centroid distance score for matching.
-- EDGE FIX: Looser re-ID threshold near frame borders.
-- GHOST FIX: Duplicate suppression — absorb nearby detections into confirmed tracks.
-- ID STABILITY: KalmanBox.count never resets; cls_id locked at creation.
-- ID SWITCH FIX: cls_id permanently locked — cross-class takeover impossible.
-- SAME-CLASS SWAP FIX: CENTROID_WEIGHT=0.55, update() never mutates cls_id.
-"""
 import os
 import cv2
 import numpy as np
 import torch
 from scipy.optimize import linear_sum_assignment
 
-# ─────────────────────────────────────────────
-# CONFIGURATION
-# ─────────────────────────────────────────────
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,14 +22,14 @@ IOU_REID       = 0.25
 IMG_SIZE       = 640
 DEVICE         = "cuda" if torch.cuda.is_available() else "cpu"
 
-# LIFECYCLE
+
 MAX_AGE          = 8
 RE_ID_AGE        = 90
 MIN_HITS         = 3
 VISIBILITY_LIMIT = 1
 
-# CROWD + EDGE TUNING
-CENTROID_WEIGHT  = 0.55   # strong centroid bias breaks same-class ties
+
+CENTROID_WEIGHT  = 0.55   
 EDGE_MARGIN      = 60
 IOU_REID_EDGE    = 0.10
 
@@ -52,9 +40,7 @@ SHOW_WINDOW    = True
 CLASS_NAMES  = {0: "Blue Player", 1: "Red Player"}
 CLASS_COLORS = {0: (255, 150, 0), 1: (0, 0, 200)}
 
-# ─────────────────────────────────────────────
-# PURE PYTORCH NMS
-# ─────────────────────────────────────────────
+
 def run_nms(preds, conf_thres, iou_thres=0.45):
     if isinstance(preds, (list, tuple)): preds = preds[0]
     if preds.ndim == 2: preds = preds.unsqueeze(0)
@@ -109,12 +95,10 @@ def run_nms(preds, conf_thres, iou_thres=0.45):
             output.append(result)
     return output
 
-# ─────────────────────────────────────────────
-# KALMAN FILTER
-# ─────────────────────────────────────────────
+
 class KalmanBox:
-    count        = 0   # global unique counter (never reset)
-    class_counts = {}  # per-class ID counters → Blue #1, Red #1 ...
+    count        = 0  
+    class_counts = {} 
 
     def __init__(self, bbox, cls_id):
         cx   = (bbox[0]+bbox[2])/2
@@ -131,11 +115,11 @@ class KalmanBox:
 
         KalmanBox.count += 1
         KalmanBox.class_counts[cls_id] = KalmanBox.class_counts.get(cls_id, 0) + 1
-        self.id                  = KalmanBox.class_counts[cls_id]  # per-class ID
+        self.id                  = KalmanBox.class_counts[cls_id] 
         self.age                 = 0
         self.hits                = 1
         self.hit_streak          = 1
-        self.cls_id              = cls_id   # LOCKED — never changes after this
+        self.cls_id              = cls_id  
         self.frames_since_update = 0
 
     def predict(self):
@@ -150,12 +134,8 @@ class KalmanBox:
         self.hit_streak = 0
 
     def update(self, bbox):
-        """
-        Update Kalman state with a new detection.
-        cls_id is intentionally NOT a parameter — class is locked at __init__
-        and can never be mutated. This prevents a single misclassified detection
-        from flipping a track's class and causing cross-class ID takeover.
-        """
+    
+   
         cx   = (bbox[0]+bbox[2])/2
         cy   = (bbox[1]+bbox[3])/2
         area = max((bbox[2]-bbox[0])*(bbox[3]-bbox[1]), 1.0)
@@ -176,9 +156,7 @@ class KalmanBox:
         w = np.sqrt(area * rat); h = area / (w + 1e-6)
         return [cx-w/2, cy-h/2, cx+w/2, cy+h/2]
 
-# ─────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────
+
 def iou_matrix(boxes_a, boxes_b):
     N, M = len(boxes_a), len(boxes_b)
     if N == 0 or M == 0: return np.zeros((N, M))
@@ -192,13 +170,7 @@ def iou_matrix(boxes_a, boxes_b):
     return inter / (area_a[:,None] + area_b[None,:] - inter + 1e-6)
 
 def blended_score_matrix(boxes_a, boxes_b):
-    """
-    Blends IoU with centroid proximity.
-    CENTROID_WEIGHT=0.55: centroid strongly wins ties in same-class overlap,
-    preventing ID swaps when two players of the same team are close together.
-    Kalman predicted boxes already encode velocity so centroid distance
-    naturally favours the track moving toward the detection.
-    """
+  
     N, M = len(boxes_a), len(boxes_b)
     if N == 0 or M == 0: return np.zeros((N, M))
 
@@ -239,9 +211,7 @@ def is_near_edge(box, frame_w, frame_h, margin=EDGE_MARGIN):
     x1, y1, x2, y2 = box
     return x1 < margin or y1 < margin or x2 > frame_w-margin or y2 > frame_h-margin
 
-# ─────────────────────────────────────────────
-# STABLE TRACKER
-# ─────────────────────────────────────────────
+
 class StableTracker:
     def __init__(self, iou_strict=IOU_STRICT, iou_loose=IOU_LOOSE,
                  iou_reid=IOU_REID, max_age=MAX_AGE, min_hits=MIN_HITS,
@@ -256,7 +226,7 @@ class StableTracker:
         self.re_id_age  = re_id_age
         self.frame_w    = frame_w
         self.frame_h    = frame_h
-        # Do NOT reset KalmanBox.count — IDs are globally unique for the whole video.
+        
 
     def _match_class_locked(self, det_indices, trk_indices, detections, threshold):
         if not det_indices or not trk_indices:
@@ -333,7 +303,7 @@ class StableTracker:
 
         pairs1, rem_d1, rem_t1 = self._match_class_locked(high_d, all_t,  detections, self.iou_strict)
         for d_idx, t_idx in pairs1:
-            self.tracks[t_idx].update(detections[d_idx][:4])   # cls_id locked — no arg needed
+            self.tracks[t_idx].update(detections[d_idx][:4])  
 
         pairs2, rem_d2, rem_t2 = self._match_class_locked(low_d, rem_t1, detections, self.iou_loose)
         for d_idx, t_idx in pairs2:
@@ -348,14 +318,14 @@ class StableTracker:
             d_cx  = (d_box[0]+d_box[2])/2
             d_cy  = (d_box[1]+d_box[3])/2
 
-            # ── Step 1: absorb into overlapping confirmed track ───────────────
+           
             absorbed          = False
             best_overlap      = 0.0
             best_existing_trk = None
             for t in self.tracks:
                 if t.cls_id != d_cls: continue
                 iou      = _iou_pair(d_box, np.array(t.get_bbox()))
-                weighted = iou * (1.0 + 0.05 * min(t.hits, 20))  # senior tracks preferred
+                weighted = iou * (1.0 + 0.05 * min(t.hits, 20))  
                 if weighted > best_overlap:
                     best_overlap      = weighted
                     best_existing_trk = t
@@ -364,7 +334,7 @@ class StableTracker:
                 best_existing_trk.update(d_box)
                 absorbed = True
 
-            # ── Step 2: absorb if too close to any confirmed same-class track ─
+           
             if not absorbed:
                 for t in [t for t in self.tracks if t.cls_id == d_cls and t.hits >= self.min_hits]:
                     t_box = np.array(t.get_bbox())
@@ -372,7 +342,7 @@ class StableTracker:
                     t_cy  = (t_box[1]+t_box[3])/2
                     diag  = np.sqrt((t_box[2]-t_box[0])**2 + (t_box[3]-t_box[1])**2)
                     dist  = np.sqrt((d_cx-t_cx)**2 + (d_cy-t_cy)**2)
-                    if dist < diag * 0.8:  # tightened: only absorb if nearly on top
+                    if dist < diag * 0.8: 
                         t.update(d_box)
                         absorbed = True
                         break
@@ -380,7 +350,7 @@ class StableTracker:
             if not absorbed:
                 self.tracks.append(KalmanBox(detections[d_idx][:4], d_cls))
 
-        # Move stale tracks → lost
+       
         alive = []
         for t in self.tracks:
             if t.frames_since_update > self.max_age:
@@ -393,9 +363,7 @@ class StableTracker:
         return [[*t.get_bbox(), t.id, t.cls_id] for t in self.tracks
                 if t.hits >= self.min_hits and t.frames_since_update <= VISIBILITY_LIMIT]
 
-# ─────────────────────────────────────────────
-# INFERENCE
-# ─────────────────────────────────────────────
+
 def load_model(pth_path, device):
     print(f"\n[1/3] Loading model: {pth_path}")
     if not os.path.exists(pth_path): raise FileNotFoundError(pth_path)
